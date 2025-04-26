@@ -68,10 +68,9 @@ mount -o defaults,noatime,ssd,discard=async,nodatacow,subvol=@swap /dev/mapper/c
 # Файл подкачки
 echo "make swap"
 swapfile="/mnt/.swap/swapfile"
-truncate -s 0 "$swapfile"
+fallocate -l 4G "$swapfile"
 chattr +C "$swapfile"
 btrfs property set "$swapfile" compression none
-fallocate -l 4G "$swapfile"
 chmod 600 "$swapfile"
 mkswap "$swapfile"
 swapon "$swapfile"
