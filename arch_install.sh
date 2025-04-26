@@ -68,11 +68,18 @@ mount -o defaults,noatime,ssd,discard=async,nodatacow,subvol=@swap /dev/mapper/c
 # Файл подкачки
 echo "make swap"
 swapfile="/mnt/.swap/swapfile"
-fallocate -l 4G "$swapfile"
+truncate -s 0 "$swapfile"
+sleep 5
 chattr +C "$swapfile"
+sleep 5
 btrfs property set "$swapfile" compression none
+sleep 5
+fallocate -l 4G "$swapfile"
+sleep 5
 chmod 600 "$swapfile"
+sleep 5
 mkswap "$swapfile"
+sleep 5
 swapon "$swapfile"
 
 # EFI раздел
