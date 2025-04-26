@@ -90,7 +90,7 @@ mount ${DISK}1 /mnt/boot
 # Установка базовой системы
 echo "Install base system"
 pacstrap -K /mnt base linux linux-firmware mkinitcpio btrfs-progs sudo neovim \
-          systemd systemd-boot networkmanager nvidia nvidia-utils nvidia-settings
+          systemd networkmanager nvidia nvidia-utils nvidia-settings
 
 # Настройка fstab
 echo "fstab"
