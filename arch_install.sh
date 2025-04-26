@@ -43,7 +43,7 @@ mount /dev/mapper/cryptroot /mnt
 
 # Создание subvolume'ов
 echo "Creat subvolumes"
-subvols=("@", "@home", "@snapshots", "@log", "@pkg", "@swap", "@tmp", "@opt")
+subvols=("@" "@home" "@snapshots" "@log" "@pkg" "@swap" "@tmp" "@opt")
 for vol in ${subvols[@]}; do
     btrfs subvolume create "/mnt/${vol}"
 done
