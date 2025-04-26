@@ -62,25 +62,25 @@ mount -o $mount_opts,subvol=@log /dev/mapper/cryptroot /mnt/var/log
 mount -o $mount_opts,subvol=@tmp /dev/mapper/cryptroot /mnt/var/tmp
 mount -o $mount_opts,subvol=@opt /dev/mapper/cryptroot /mnt/opt
 
-mount -o noatime,ssd,discard=async,nodatacow,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
-mount -o noatime,ssd,discard=async,nodatacow,subvol=@swap /dev/mapper/cryptroot /mnt/.swap
+mount -o noatime,ssd,discard=async,nodatacow,compress=no,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
+mount -o noatime,ssd,discard=async,nodatacow,compress=no,subvol=@swap /dev/mapper/cryptroot /mnt/.swap
 
 # Файл подкачки
 echo "make swap"
-swapfile="/mnt/.swap/swapfile"
-truncate -s 0 "$swapfile"
-sleep 5
-chattr +C "$swapfile"
-sleep 5
-btrfs property set "$swapfile" compression none
-sleep 5
-fallocate -l 4G "$swapfile"
-sleep 5
-chmod 600 "$swapfile"
-sleep 5
-mkswap "$swapfile"
-sleep 5
-swapon "$swapfile"
+#swapfile="/mnt/.swap/swapfile"
+#truncate -s 0 "$swapfile"
+#sleep 5
+#chattr +C "$swapfile"
+#sleep 5
+#btrfs property set "$swapfile" compression none
+#sleep 5
+#fallocate -l 4G "$swapfile"
+#sleep 5
+#chmod 600 "$swapfile"
+#sleep 5
+#mkswap "$swapfile"
+#sleep 5
+#swapon "$swapfile"
 
 # EFI раздел
 echo "EFI"
