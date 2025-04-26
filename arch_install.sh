@@ -8,26 +8,26 @@ set -e
 [ ! -d /sys/firmware/efi ] && { echo "Требуется UEFI!"; exit 1; }
 
 # Ввод параметров
-read -p "Введите имя хоста: " HOSTNAME
-read -p "Введите имя пользователя: " USERNAME
-read -sp "Пароль root: " ROOT_PASSWORD
+read -p "Enter hostname: " HOSTNAME
+read -p "Enter username: " USERNAME
+read -sp "Rnter password for root: " ROOT_PASSWORD
 echo
-read -sp "Пароль пользователя $USERNAME: " PASSWORD
+read -sp "Enter password for $USERNAME: " PASSWORD
 echo
 
 # Выбор диска
 DISKS=$(lsblk -d -p -n -l -o NAME,SIZE)
-echo -e "\nДоступные диски:"
+echo -e "\nAvailable disks:"
 echo "$DISKS"
-read -p "Выберите диск (например, /dev/nvme0n1): " DISK
+read -p "Select disk (example, /dev/nvme0n1): " DISK
 
 LOCALE_EN="en_US.UTF-8"
 LOCALE_RU="ru_RU.UTF-8"
 TIMEZONE="Europe/Moscow"
 
 # Подтверждение
-echo -e "\nВсе данные на $DISK будут удалены!"
-read -p "Продолжить? (y/N): " confirm
+echo -e "\nAll data on $DISK will deleted!"
+read -p "Continue? (y/N): " confirm
 [[ "$confirm" != "y" ]] && exit 1
 
 # Разметка диска
@@ -42,13 +42,16 @@ mkfs.btrfs -L "ArchRoot" /dev/mapper/cryptroot
 mount /dev/mapper/cryptroot /mnt
 
 # Создание subvolume'ов
+echo "Creat subvolumes"
 subvols=("@", "@home", "@snapshots", "@log", "@pkg", "@swap", "@tmp", "@opt")
 for vol in ${subvols[@]}; do
     btrfs subvolume create "/mnt/${vol}"
 done
+echo "Subvolumes was criated"
 umount /mnt
 
 # Монтирование с параметрами
+echo "mount with parameters"
 mount_opts="defaults,noatime,ssd,discard=async,compress=zstd"
 mount -o $mount_opts,subvol=@ /dev/mapper/cryptroot /mnt
 mkdir -p /mnt/{boot,home,var/log,var/cache/pacman/pkg,var/tmp,opt,.swap,.snapshots}
@@ -63,6 +66,7 @@ mount -o defaults,noatime,ssd,discard=async,nodatacow,subvol=@pkg /dev/mapper/cr
 mount -o defaults,noatime,ssd,discard=async,nodatacow,compression=none,subvol=@swap /dev/mapper/cryptroot /mnt/.swap
 
 # Файл подкачки
+echo "make swap"
 swapfile="/mnt/.swap/swapfile"
 truncate -s 0 "$swapfile"
 chattr +C "$swapfile"
@@ -73,18 +77,22 @@ mkswap "$swapfile"
 swapon "$swapfile"
 
 # EFI раздел
+echo "EFI"
 mkfs.fat -F32 -n "EFI" ${DISK}1
 mount ${DISK}1 /mnt/boot
 
 # Установка базовой системы
+echo "Install base system"
 pacstrap -K /mnt base linux linux-firmware mkinitcpio btrfs-progs sudo neovim \
           systemd systemd-boot networkmanager nvidia nvidia-utils nvidia-settings
 
 # Настройка fstab
+echo "fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt /bin/bash <<EOF
 # Настройка локали и времени
+echo "locale"
 ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
 hwclock --systohc
 echo "$LOCALE_EN UTF-8" > /etc/locale.gen
@@ -94,6 +102,7 @@ echo "LANG=$LOCALE_EN" > /etc/locale.conf
 echo "KEYMAP=en" > /etc/vconsole.conf
 
 # Настройка хоста
+echo "Host"
 echo "$HOSTNAME" > /etc/hostname
 cat > /etc/hosts <<HOSTS
 127.0.0.1    localhost
@@ -102,16 +111,19 @@ cat > /etc/hosts <<HOSTS
 HOSTS
 
 # Пароли
+echo "passwords"
 echo "root:$ROOT_PASSWORD" | chpasswd
 useradd -m -G wheel,storage,power,audio,video "$USERNAME"
 echo "$USERNAME:$PASSWORD" | chpasswd
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
 # Initramfs
+echo "HOOKS"
 sed -i 's/^HOOKS=.*/HOOKS=(base systemd autodetect keyboard sd-vconsole modconf block sd-encrypt filesystems fsck)/' /etc/mkinitcpio.conf
 mkinitcpio -P
 
 # Настройка загрузчика
+echo "bootloader"
 bootctl install
 cat > /boot/loader/loader.conf <<LOADER
 default arch
@@ -136,7 +148,7 @@ EOF
 # Завершение
 umount -R /mnt
 cryptsetup close cryptroot
-echo -e "\n✅ Установка завершена! Для применения изменений выполните:"
+echo -e "\n✅ Installation complete! To apply the changes:"
 echo -e "1. reboot"
-echo -e "2. После входа выполните: sudo pacman -Syu"
-echo -e "3. Для игрового окружения запустите install_gaming_env.sh"
+echo -e "2. After logging in, do: sudo pacman -Syu"
+
