@@ -10,7 +10,7 @@ set -e
 # Ввод параметров
 read -p "Enter hostname: " HOSTNAME
 read -p "Enter username: " USERNAME
-read -sp "Rnter password for root: " ROOT_PASSWORD
+read -sp "Enter password for root: " ROOT_PASSWORD
 echo
 read -sp "Enter password for $USERNAME: " PASSWORD
 echo
@@ -42,12 +42,12 @@ mkfs.btrfs -L "ArchRoot" /dev/mapper/cryptroot
 mount /dev/mapper/cryptroot /mnt
 
 # Создание subvolume'ов
-echo "Creat subvolumes"
+echo "Create subvolumes"
 subvols=("@" "@home" "@snapshots" "@log" "@pkg" "@swap" "@tmp" "@opt")
 for vol in ${subvols[@]}; do
     btrfs subvolume create "/mnt/${vol}"
 done
-echo "Subvolumes was criated"
+echo "Subvolumes were created"
 umount /mnt
 
 # Монтирование с параметрами
@@ -88,6 +88,8 @@ pacstrap -K /mnt base linux linux-firmware mkinitcpio btrfs-progs sudo neovim \
 # Настройка fstab
 echo "fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
+
+UUID=$(blkid -s UUID -o value ${DISK}2)
 
 arch-chroot /mnt /bin/bash <<EOF
 # Настройка локали и времени
@@ -131,7 +133,7 @@ console-mode max
 editor no
 LOADER
 
-UUID=\$(blkid -s UUID -o value ${DISK}2)
+#UUID=\$(blkid -s UUID -o value ${DISK}2)
 cat > /boot/loader/entries/arch.conf <<ENTRY
 title Arch Linux
 linux /vmlinuz-linux
@@ -141,7 +143,7 @@ ENTRY
 
 # Дополнительные настройки
 systemctl enable NetworkManager
-btrfs filesystem defragment -r -czstd /
+#btrfs filesystem defragment -r -czstd /
 EOF
 
 # Завершение
