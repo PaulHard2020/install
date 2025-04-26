@@ -52,7 +52,7 @@ umount /mnt
 
 # Монтирование с параметрами
 echo "mount with parameters"
-mount_opts="defaults,noatime,ssd,discard=async,compress=zstd"
+mount_opts="noatime,ssd,discard=async,compress=zstd"
 mount -o $mount_opts,subvol=@ /dev/mapper/cryptroot /mnt
 mkdir -p /mnt/{boot,home,var/log,var/cache/pacman/pkg,var/tmp,opt,.swap,.snapshots}
 
@@ -62,8 +62,8 @@ mount -o $mount_opts,subvol=@log /dev/mapper/cryptroot /mnt/var/log
 mount -o $mount_opts,subvol=@tmp /dev/mapper/cryptroot /mnt/var/tmp
 mount -o $mount_opts,subvol=@opt /dev/mapper/cryptroot /mnt/opt
 
-mount -o defaults,noatime,ssd,discard=async,nodatacow,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
-mount -o defaults,noatime,ssd,discard=async,nodatacow,subvol=@swap /dev/mapper/cryptroot /mnt/.swap
+mount -o noatime,ssd,discard=async,nodatacow,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
+mount -o noatime,ssd,discard=async,nodatacow,subvol=@swap /dev/mapper/cryptroot /mnt/.swap
 
 # Файл подкачки
 echo "make swap"
