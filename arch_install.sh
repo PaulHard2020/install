@@ -63,7 +63,7 @@ mount -o $mount_opts,subvol=@tmp /dev/mapper/cryptroot /mnt/var/tmp
 mount -o $mount_opts,subvol=@opt /dev/mapper/cryptroot /mnt/opt
 
 mount -o defaults,noatime,ssd,discard=async,nodatacow,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
-mount -o defaults,noatime,ssd,discard=async,nodatacow,compression=none,subvol=@swap /dev/mapper/cryptroot /mnt/.swap
+mount -o defaults,noatime,ssd,discard=async,nodatacow,subvol=@swap /dev/mapper/cryptroot /mnt/.swap
 
 # Файл подкачки
 echo "make swap"
