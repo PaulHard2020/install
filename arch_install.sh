@@ -144,7 +144,7 @@ console-mode max
 editor no
 LOADER
 
-#UUID=\$(blkid -s UUID -o value ${DISK}2)
+UUID=\$(blkid -s UUID -o value ${DISK}2)
 cat > /boot/loader/entries/arch.conf <<ENTRY
 title Arch Linux
 linux /vmlinuz-linux
