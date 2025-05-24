@@ -123,7 +123,11 @@ echo "passwords"
 echo "root:$ROOT_PASSWORD" | chpasswd
 useradd -m -G wheel,storage,power,audio,video "$USERNAME"
 echo "$USERNAME:$PASSWORD" | chpasswd
-sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+#sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+
+# разрешение sudo для wheel через sudoers.d
+echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/10-wheel
+chmod 0440 /etc/sudoers.d/10-wheel
 
 # Initramfs
 echo "HOOKS"
